@@ -127,6 +127,17 @@ DCMI_DMS_FAULT_EVENT = 0
 DCMI_DIE_TYPE_NDIE = 0
 DCMI_DIE_TYPE_VDIE = 1
 
+## Enums ##
+DCMI_TOPO_TYPE_SELF = 0
+DCMI_TOPO_TYPE_SYS = 1
+DCMI_TOPO_TYPE_PHB = 2
+DCMI_TOPO_TYPE_HCCS = 3
+DCMI_TOPO_TYPE_PXB = 4
+DCMI_TOPO_TYPE_PIX = 5
+DCMI_TOPO_TYPE_BUTT = 6  # Unknown
+DCMI_TOPO_TYOE_MAX = 7
+
+
 ## Error Codes ##
 DCMI_SUCCESS = 0
 DCMI_ERROR_INVALID_PARAMETER = -8001
@@ -1161,3 +1172,11 @@ def dcmi_set_spod_node_status(card_id, device_id, sdid, status):
     fn = _dcmiGetFunctionPointer("dcmi_set_spod_node_status")
     ret = fn(card_id, device_id, sdid, status)
     _dcmiCheckReturn(ret)
+
+
+def dcmi_get_topo_info_by_device_id(card_id1, device_id1, card_id2, device_id2):
+    c_topo_info = c_int()
+    fn = _dcmiGetFunctionPointer("dcmi_get_topo_info_by_device_id")
+    ret = fn(card_id1, device_id1, card_id2, device_id2, byref(c_topo_info))
+    _dcmiCheckReturn(ret)
+    return c_topo_info.value

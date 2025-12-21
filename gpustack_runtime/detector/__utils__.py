@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import contextlib
+import os
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 from dataclasses import dataclass
+from functools import lru_cache
+from math import ceil
 from pathlib import Path
 from typing import Any
 
@@ -537,3 +541,21 @@ def get_memory() -> tuple[int, int]:
 
     except OSError:
         return 0, 0
+
+
+@lru_cache(maxsize=1)
+def get_cpuset_size() -> int:
+    """
+    Get the CPU set size.
+
+    Returns:
+        The number of the available CPU set size.
+
+    """
+    n_proc = os.sysconf("SC_NPROCESSORS_CONF")
+
+    n_bits = 32
+    if sys.maxsize > 2**32:
+        n_bits = 64
+
+    return ceil((n_proc + n_bits - 1) // n_bits)

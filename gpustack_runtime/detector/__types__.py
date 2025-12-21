@@ -223,6 +223,95 @@ A list of Device objects.
 """
 
 
+@dataclass_json
+@dataclass
+class Topology:
+    """
+    Topology information between devices.
+    """
+
+    manufacturer: ManufacturerEnum
+    """
+    Manufacturer of the devices that this topology applies to.
+    """
+    devices_distances: list[list[int]]
+    """
+    A 2D list representing the distances between devices.
+    The value at row i and column j represents the distance
+    between device i and device j.
+    """
+    devices_cpusets: list[list[int]]
+    """
+    A list representing the CPU sets associated with each device.
+    The value at index i represents the CPU set for device i.
+    """
+
+    @staticmethod
+    def map_devices_distance(distance: int) -> str:
+        """
+        Map the devices distance to a human-readable format.
+
+        Args:
+            distance:
+                The distance between two devices.
+
+        Returns:
+            A string representing the distance.
+
+        """
+        return str(distance)
+
+    def __init__(
+        self,
+        manufacturer: ManufacturerEnum,
+        devices_count: int,
+        cpuset_size: int,
+    ):
+        self.manufacturer = manufacturer
+        self.devices_distances = [[0] * devices_count for _ in range(devices_count)]
+        self.devices_cpusets = [[0] * cpuset_size for _ in range(devices_count)]
+
+    def reduce_devices_distances(self) -> dict[int, list[int]]:
+        """
+        Reduce the devices distances and return a brief relationship mapping.
+
+        The key of relationship mapping is the device index,
+        and the value is device indexes sorted from near to far.
+
+        For example, given 4 devices with the following Topology adjacency_matrix matrix:
+        `[[0, 10, 20, 30], [10, 0, 15, 25], [20, 15, 0, 5], [30, 25, 5, 0]]`,
+        the resulting relationship will be:
+        `{0: [1, 2, 3], 1: [0, 2, 3], 2: [3, 1, 0], 3: [2, 1, 0]}` .
+
+        Returns:
+            A dictionary representing the relationship.
+
+        """
+        result: dict[int, list[int]] = {}
+
+        devices_count = len(self.devices_distances)
+        for index in range(devices_count):
+            device_indexes = list(range(devices_count))
+            distances = zip(device_indexes, self.devices_distances[index], strict=False)
+            sorted_distances = sorted(distances, key=lambda x: x[1])
+            sorted_indexes = [device_index for device_index, _ in sorted_distances]
+            result[index] = sorted_indexes[1:]
+
+        return result
+
+    def format_devices_distances(self) -> list[list[str]]:
+        """
+        Format the devices distances in a human-readable format.
+
+        Returns:
+            A 2D list representing the devices distances with string values.
+
+        """
+        return [
+            [self.map_devices_distance(c) for c in r] for r in self.devices_distances
+        ]
+
+
 class Detector(ABC):
     """
     Base class for all detectors.
@@ -269,3 +358,17 @@ class Detector(ABC):
 
         """
         raise NotImplementedError
+
+    def get_topology(self, devices: Devices | None) -> Topology | None:  # noqa: ARG002
+        """
+        Get the Topology object between the given devices.
+
+        Args:
+            devices:
+                A list of Device objects.
+
+        Returns:
+            A Topology object, or None if not supported.
+
+        """
+        return None
