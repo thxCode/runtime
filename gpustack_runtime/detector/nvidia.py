@@ -275,7 +275,7 @@ class NVIDIADetector(Detector):
                     print(e)
                     dev_nvlink_info = None
 
-                dev_fabric = pynvml.c_nvmlGpuFabricInfo_v2_t()
+                dev_fabric = pynvml.c_nvmlGpuFabricInfoV_t()
                 try:
                     r = pynvml.nvmlDeviceGetGpuFabricInfoV(dev, dev_fabric)
                     if r != pynvml.NVML_SUCCESS:
