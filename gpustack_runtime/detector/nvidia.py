@@ -286,7 +286,7 @@ class NVIDIADetector(Detector):
                     if e.value == pynvml.NVML_ERROR_ARGUMENT_VERSION_MISMATCH:
                         dev_fabric = pynvml.c_nvmlGpuFabricInfo_t()
                         try:
-                            r = pynvml.nvmlDeviceGetGpuFabricInfoV(dev, dev_fabric)
+                            r = pynvml.nvmlDeviceGetGpuFabricInfo(dev, dev_fabric)
                             if r != pynvml.NVML_SUCCESS:
                                 dev_fabric = None
                             if (
