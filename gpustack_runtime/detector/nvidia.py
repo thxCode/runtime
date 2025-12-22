@@ -276,18 +276,19 @@ class NVIDIADetector(Detector):
                     print(e)
                     dev_nvlink_info = None
 
-                dev_fabric = pynvml.c_nvmlGpuFabricInfo_v2_t()
+                dev_fabric = pynvml.c_nvmlGpuFabricInfoV_t()
                 try:
                     r = pynvml.nvmlDeviceGetGpuFabricInfoV(dev, byref(dev_fabric))
                     if r != pynvml.NVML_SUCCESS:
                         dev_fabric = None
                     if dev_fabric.state != pynvml.NVML_GPU_FABRIC_STATE_COMPLETED:
                         dev_fabric = None
-                except pynvml.NVMLError as e:
-                    print(e)
+                except pynvml.NVMLError:
                     dev_fabric = None
                 if dev_fabric:
-                    dev_appendix["fabric_cluster_uuid"] = dev_fabric.clusterUuid
+                    dev_appendix["fabric_cluster_uuid"] = bytes(
+                        dev_fabric.clusterUuid,
+                    ).decode("utf-8", errors="ignore")
                     dev_appendix["fabric_clique_id"] = dev_fabric.cliqueId
 
                 dev_mig_mode = pynvml.NVML_DEVICE_MIG_DISABLE
