@@ -276,29 +276,15 @@ class NVIDIADetector(Detector):
                     dev_nvlink_info = None
 
                 dev_fabric = pynvml.c_nvmlGpuFabricInfoV_t()
+                dev_fabric.version = pynvml.nvmlGpuFabricInfo_v2
                 try:
                     r = pynvml.nvmlDeviceGetGpuFabricInfoV(dev, dev_fabric)
                     if r != pynvml.NVML_SUCCESS:
                         dev_fabric = None
                     if dev_fabric.state != pynvml.NVML_GPU_FABRIC_STATE_COMPLETED:
                         dev_fabric = None
-                except pynvml.NVMLError as e:
-                    if e.value == pynvml.NVML_ERROR_ARGUMENT_VERSION_MISMATCH:
-                        dev_fabric = pynvml.c_nvmlGpuFabricInfo_t()
-                        try:
-                            r = pynvml.nvmlDeviceGetGpuFabricInfo(dev, dev_fabric)
-                            if r != pynvml.NVML_SUCCESS:
-                                dev_fabric = None
-                            if (
-                                dev_fabric.state
-                                != pynvml.NVML_GPU_FABRIC_STATE_COMPLETED
-                            ):
-                                dev_fabric = None
-                        except pynvml.NVMLError as e:
-                            print(e)
-                            dev_fabric = None
-                    else:
-                        dev_fabric = None
+                except pynvml.NVMLError:
+                    dev_fabric = None
                 if dev_fabric:
                     dev_appendix["fabric_cluster_uuid"] = dev_fabric.clusterUuid
                     dev_appendix["fabric_clique_id"] = dev_fabric.cliqueId
