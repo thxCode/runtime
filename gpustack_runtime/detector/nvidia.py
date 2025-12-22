@@ -294,7 +294,8 @@ class NVIDIADetector(Detector):
                                 != pynvml.NVML_GPU_FABRIC_STATE_COMPLETED
                             ):
                                 dev_fabric = None
-                        except pynvml.NVMLError:
+                        except pynvml.NVMLError as e:
+                            print(e)
                             dev_fabric = None
                     else:
                         dev_fabric = None
