@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import logging
+import uuid
 from _ctypes import byref
 from functools import lru_cache
 from math import ceil
@@ -286,9 +287,9 @@ class NVIDIADetector(Detector):
                 except pynvml.NVMLError:
                     dev_fabric = None
                 if dev_fabric:
-                    dev_appendix["fabric_cluster_uuid"] = bytes(
-                        dev_fabric.clusterUuid,
-                    ).decode("utf-8", errors="ignore")
+                    dev_appendix["fabric_cluster_uuid"] = str(
+                        uuid.UUID(bytes=bytes(dev_fabric.clusterUuid)),
+                    )
                     dev_appendix["fabric_clique_id"] = dev_fabric.cliqueId
 
                 dev_mig_mode = pynvml.NVML_DEVICE_MIG_DISABLE
