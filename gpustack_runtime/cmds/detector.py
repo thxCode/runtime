@@ -186,7 +186,7 @@ def format_devices_table(devs: Devices) -> str:
 
 
 def format_topology_table(topo: Topology) -> str:
-    content = topo.format_devices_distances()
+    content = topo.stringify_devices_distances()
 
     # Column headers
     col_headers = [str(topo.manufacturer).upper()] + [

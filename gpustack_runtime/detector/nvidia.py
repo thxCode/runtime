@@ -80,21 +80,18 @@ class NVIDIATopology(Topology):
         """
         return str(_DISTANCE_NAME_MAPPING.get(distance, _DISTANCE_NAME_UNKNOWN))
 
-    def __init__(self, devices_count: int, cpuset_size: int):
+    def __init__(self, devices_count: int):
         """
         Initialize the NVIDIA Topology.
 
         Args:
             devices_count:
                 Count of devices in the topology.
-            cpuset_size:
-                Size of the CPU set for each device.
 
         """
         super().__init__(
             manufacturer=ManufacturerEnum.NVIDIA,
             devices_count=devices_count,
-            cpuset_size=cpuset_size,
         )
 
 
@@ -480,10 +477,8 @@ class NVIDIADetector(Detector):
                 return None
 
         devices_count = len(devices)
-        cpuset_size = get_cpuset_size()
         topology = NVIDIATopology(
             devices_count=devices_count,
-            cpuset_size=cpuset_size,
         )
 
         try:
@@ -495,9 +490,16 @@ class NVIDIADetector(Detector):
                 try:
                     dev_i_cpuset = pynvml.nvmlDeviceGetCpuAffinity(
                         dev_i_handle,
-                        cpuset_size,
+                        get_cpuset_size(),
                     )
-                    topology.devices_cpusets[i] = list(dev_i_cpuset)
+                    for k in dev_i_cpuset:
+                        if k != 0:
+                            # k is a bitmask
+                            # stringify to corresponding cpu affinity,
+                            # For example, 0b1010 -> "1,3",
+                            # 0b111 -> "0-2".
+                            print(k.bit_count())
+
                 except pynvml.NVMLError:
                     debug_log_warning(
                         logger,

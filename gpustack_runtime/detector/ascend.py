@@ -14,7 +14,6 @@ from .__types__ import Detector, Device, Devices, ManufacturerEnum, Topology
 from .__utils__ import (
     PCIDevice,
     get_brief_version,
-    get_cpuset_size,
     get_pci_devices,
     get_utilization,
 )
@@ -80,21 +79,18 @@ class AscendTopology(Topology):
         """
         return str(_DISTANCE_NAME_MAPPING.get(distance, _DISTANCE_NAME_UNKNOWN))
 
-    def __init__(self, devices_count: int, cpuset_size: int):
+    def __init__(self, devices_count: int):
         """
         Initialize the AscendTopology object.
 
         Args:
             devices_count:
                 Count of devices in the topology.
-            cpuset_size:
-                Size of the CPU set for each device.
 
         """
         super().__init__(
             manufacturer=ManufacturerEnum.ASCEND,
             devices_count=devices_count,
-            cpuset_size=cpuset_size,
         )
 
 
@@ -311,10 +307,8 @@ class AscendDetector(Detector):
                 return None
 
         devices_count = len(devices)
-        cpuset_size = get_cpuset_size()
         topology = AscendTopology(
             devices_count=devices_count,
-            cpuset_size=cpuset_size,
         )
 
         for i, dev_i in enumerate(devices):

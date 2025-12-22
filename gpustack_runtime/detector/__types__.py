@@ -240,10 +240,10 @@ class Topology:
     The value at row i and column j represents the distance
     between device i and device j.
     """
-    devices_cpusets: list[list[int]]
+    devices_cpusets: list[list[str]]
     """
     A list representing the CPU sets associated with each device.
-    The value at index i represents the CPU set for device i.
+    The value at index i represents the CPU affinity for device i.
     """
 
     @staticmethod
@@ -265,11 +265,10 @@ class Topology:
         self,
         manufacturer: ManufacturerEnum,
         devices_count: int,
-        cpuset_size: int,
     ):
         self.manufacturer = manufacturer
         self.devices_distances = [[0] * devices_count for _ in range(devices_count)]
-        self.devices_cpusets = [[0] * cpuset_size for _ in range(devices_count)]
+        self.devices_cpusets = [[]] * devices_count
 
     def reduce_devices_distances(self) -> dict[int, list[int]]:
         """
@@ -299,7 +298,7 @@ class Topology:
 
         return result
 
-    def format_devices_distances(self) -> list[list[str]]:
+    def stringify_devices_distances(self) -> list[list[str]]:
         """
         Format the devices distances in a human-readable format.
 
